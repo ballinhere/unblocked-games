@@ -1,4 +1,11 @@
 [
+{
+	  "name": "Vortelli's Pizza",
+	  "game_url": "https://poki.com/de/g/vortellis-pizza",
+	  "game_image_icon": "https://img.poki.com/cdn-cgi/image/quality=78,width=204,height=204,fit=cover,f=auto/b8979185a7eb8ea380eaec50da75b312.png",
+	  "game-id": "vortellis-pizza",
+	  "iframe": " <iframe width=\"1366\" height=\"768\" src=\"https://poki.com/de/g/vortellis-pizza\" title=\"Vortelli's Pizza\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe> "
+	},
 	{
 	  "name": "Retro Bowl",
 	  "game_url": "https://hfmanor.com/retro-bowl",
