@@ -8,53 +8,95 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #121214; color: #ffffff; margin: 0; padding: 20px; }
         header { text-align: center; margin-bottom: 30px; }
-        h1 { color: #ff4757; font-size: 2.5rem; margin-bottom: 10px; }
-        #search { width: 100%; max-width: 500px; padding: 12px 20px; border-radius: 25px; border: none; background: #202024; color: white; font-size: 1rem; margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .card { background: #202024; border-radius: 12px; overflow: hidden; text-align: center; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; text-decoration: none; color: white; border: 2px solid transparent; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); border-color: #ff4757; }
-        .card img { width: 100%; height: 120px; object-fit: cover; background: #2a2a30; }
-        .card p { margin: 10px; font-weight: bold; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        h1 { color: #ff4757; font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Suchleiste */
+        .search-container { position: relative; max-width: 500px; margin: 0 auto 30px auto; }
+        #search { width: 100%; padding: 14px 25px; border-radius: 30px; border: 2px solid #202024; background: #202024; color: white; font-size: 1rem; transition: all 0.3s ease; }
+        #search:focus { outline: none; border-color: #ff4757; background: #1a1a1e; box-shadow: 0 0 15px rgba(255, 71, 87, 0.2); }
+        
+        /* Spiele-Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; max-width: 1300px; margin: 0 auto; }
+        
+        /* Spiele-Karten */
+        .card { background: #202024; border-radius: 16px; overflow: hidden; text-align: center; transition: all 0.25s ease; cursor: pointer; text-decoration: none; color: white; border: 2px solid transparent; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4); border-color: #ff4757; }
+        
+        /* Bild-Container (verhindert Layout-Verschiebungen) */
+        .img-container { width: 100%; aspect-ratio: 4/3; background: #2a2a30; overflow: hidden; position: relative; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .card p { margin: 12px; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Lade-Indikator */
+        #loading { text-align: center; font-size: 1.2rem; color: #888; margin-top: 50px; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>🎮 School Arcade</h1>
-    <input type="text" id="search" placeholder="Spiel suchen..." onkeyup="filterGames()">
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Durchsuche 400+ Spiele..." onkeyup="filterGames()">
+    </div>
 </header>
 
-<div class="grid" id="gameGrid">
-    <!-- Spiel 1 -->
-    <a href="https://hfmanor.com/retro-bowl" class="card" target="_blank">
-        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300" alt="Retro Bowl">
-        <p>Retro Bowl</p>
-    </a>
-
-    <!-- Spiel 2 -->
-    <a href="https://hfmanor.com/subway-surfers" class="card" target="_blank">
-        <img src="https://images.unsplash.com/photo-1551103782-8ab07afd45c1?w=300" alt="Subway Surfers">
-        <p>Subway Surfers</p>
-    </a>
-
-    <!-- Spiel 3 -->
-    <a href="https://hfmanor.com/1v1lol" class="card" target="_blank">
-        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=300" alt="1v1.lol">
-        <p>1v1.lol</p>
-    </a>
-    
-    <!-- Hier kannst du nach dem gleichen Muster weitere Spiele aus deiner Liste hinzufügen! -->
-</div>
+<div id="loading">Spiele werden geladen...</div>
+<div class="grid" id="gameGrid" style="display: none;"></div>
 
 <script>
+// Array, in dem die Spiele nach dem Laden gespeichert werden
+let allGames = [];
+
+// Lädt die Daten automatisch aus deiner games.json
+async function loadGames() {
+    try {
+        const response = await fetch('games.json');
+        if (!response.ok) throw new Error('Fehler beim Laden der JSON-Datei');
+        
+        allGames = await response.json();
+        
+        const gameGrid = document.getElementById('gameGrid');
+        const loadingDiv = document.getElementById('loading');
+        
+        // HTML für alle Spiele generieren
+        let gridHtml = '';
+        allGames.forEach(game => {
+            gridHtml += `
+                <a href="${game.game_url}" class="card" target="_blank">
+                    <div class="img-container">
+                        <img src="${game.game_image_icon}" alt="${game.name}" loading="lazy">
+                    </div>
+                    <p>${game.name}</p>
+                </a>
+            `;
+        });
+        
+        gameGrid.innerHTML = gridHtml;
+        
+        // Lade-Anzeige verstecken und Grid anzeigen
+        loadingDiv.style.display = 'none';
+        gameGrid.style.display = 'grid';
+        
+    } catch (error) {
+        console.error(error);
+        document.getElementById('loading').innerText = 'Fehler beim Laden der Spiele-Liste. Stelle sicher, dass games.json im selben Ordner liegt.';
+    }
+}
+
+// Suchfunktion (Echtzeit-Filterung)
 function filterGames() {
-    let input = document.getElementById('search').value.toLowerCase();
-    let cards = document.getElementsByClassName('card');
+    const input = document.getElementById('search').value.toLowerCase();
+    const cards = document.getElementsByClassName('card');
+    
     for (let i = 0; i < cards.length; i++) {
-        let title = cards[i].getElementsByTagName('p')[0].innerText.toLowerCase();
+        const title = cards[i].getElementsByTagName('p')[0].innerText.toLowerCase();
         cards[i].style.display = title.includes(input) ? "" : "none";
     }
 }
+
+// Starte den Ladevorgang, sobald die Seite geladen ist
+window.onload = loadGames;
 </script>
 
 </body>
